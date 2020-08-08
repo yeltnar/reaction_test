@@ -1,0 +1,141 @@
+<script>
+
+    const data = {
+        "t": 2081,
+        "key_date": 1596923193203,
+        "load_date": 1596923191122,
+        "delay": 1761,
+        "reaction": 320,
+        "average": 247.8,
+        "length": 10,
+        "reaction_arr": [
+            204,
+            230,
+            215,
+            224,
+            239,
+            220,
+            214,
+            323,
+            289,
+            320
+        ]
+    };
+
+    const data2 = {
+        "t": 4159,
+        "key_date": 1596923856731,
+        "load_date": 1596923852572,
+        "delay": 3473,
+        "reaction": 686,
+        "average": 669.2,
+        "length": 10,
+        "reaction_arr": [
+            650,
+            776,
+            657,
+            645,
+            595,
+            651,
+            632,
+            725,
+            675,
+            686
+        ]
+    };
+
+    const data = {
+        "t": 3499,
+        "key_date": 1596923959530,
+        "load_date": 1596923956031,
+        "delay": 3060,
+        "reaction": 439,
+        "average": 472.2,
+        "length": 10,
+        "reaction_arr": [
+            459,
+            459,
+            446,
+            454,
+            516,
+            467,
+            451,
+            493,
+            538,
+            439
+        ]
+    }
+
+    const load_date = new Date().getTime();
+
+    const min_delay = 1000;
+    const max_delay = 5000;
+
+    const reaction_key = "visiual_reaction_arr";
+
+    const delay = parseInt(Math.random() * (max_delay - min_delay) + min_delay);
+
+    let key_press_valid = false;
+
+    const timeout_id = setTimeout(() => {
+        key_press_valid = true;
+        startReactionEvent();
+    }, delay);
+
+    window.addEventListener("keydown", () => {
+
+        if (key_press_valid === false) {
+            clearTimeout(timeout_id);
+            startTooSoonEvent();
+            return;
+        }
+
+        const key_date = new Date().getTime();
+
+        const reaction = key_date - load_date - delay
+
+        const reaction_json = window.localStorage.getItem(reaction_key) || "[]";
+        const reaction_arr = JSON.parse(reaction_json);
+        console.log(reaction_arr.length)
+        reaction_arr.push(reaction);
+
+        const average = reaction_arr.reduce((acc, cur, i, arr) => {
+            acc.sum += cur;
+            acc.count++;
+            acc.average = acc.sum / acc.count;
+            return acc;
+        }, { sum: 0, count: 0, average: 0 }).average;
+
+        window.localStorage.setItem(reaction_key, JSON.stringify(reaction_arr))
+
+        alert(JSON.stringify({
+            t: key_date - load_date,
+            key_date,
+            load_date,
+            delay,
+            reaction,
+            average,
+            length: reaction_arr.length,
+            reaction_arr,
+        }, null, 2));
+
+        window.location.reload();
+    })
+
+
+    window.drewclear = () => {
+        window.localStorage.setItem(reaction_key, "[]")
+    }
+
+    function startReactionEvent() {
+        document.querySelector("body").style.backgroundColor = "black";
+        document.querySelectorAll("audio")[0].play();
+    }
+
+    function startTooSoonEvent() {
+        document.querySelector("body").style.backgroundColor = "red";
+    }
+
+</script>
+
+<audio src="sound.mp3"></audio>
